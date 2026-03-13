@@ -1,0 +1,108 @@
+ body {
+            font-family: Arial, sans-serif;
+            margin: 40px auto;
+            max-width: 900px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+h1 {
+            font-family: "Times New Roman", serif;
+            font-size: 2.2em;
+            margin-bottom: 0.2em;
+        }
+
+hr {
+            border: 0;
+            border-top: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+
+h2 {
+            font-size: 1.5em;
+            margin-top: 25px;
+        }
+
+h3 {
+            font-size: 1.1em;
+            text-decoration: underline;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+p {
+            margin: 10px 0;
+        }
+
+a {
+            color: #0000EE;
+            text-decoration: underline;
+        }
+
+ .highlight {
+            background-color: yellow;
+        }
+
+ ul {
+            margin-left: 20px;
+        }
+
+ol {
+            list-style-type: upper-roman; /* Creates I, II, III numbering */
+            margin-left: 40px;
+        }
+
+strong {
+            font-weight: bold;
+        }
+
+em {
+            font-style: italic;
+        }
+    
+
+        body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.image-container {
+    border: 15px solid #FF7F50; /* Orange border as seen in the image */
+    display: inline-block;
+    margin: 20px 0;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+.table-title {
+    color: red;
+    text-align: center;
+    border: 1px solid red;
+    padding: 5px;
+    margin-bottom: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: -1px; /* Joins the red title box and table */
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    text-align: center;
+}
