@@ -1,0 +1,31 @@
+body {
+  text-align: center;
+  font-family: Arial;
+  background: #111;
+  color: white;
+}
+
+.drum-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 40px;
+}
+
+.drum {
+  width: 80px;
+  height: 80px;
+  font-size: 24px;
+  border: none;
+  border-radius: 10px;
+  background: #333;
+  color: white;
+  cursor: pointer;
+  transition: 0.1s;
+}
+
+.drum:active,
+.playing {
+  transform: scale(1.2);
+  background: orange;
+}

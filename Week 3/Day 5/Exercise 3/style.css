@@ -1,0 +1,37 @@
+body {
+  font-family: Arial;
+  text-align: center;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+.listTasks {
+  width: 300px;
+  margin: auto;
+  text-align: left;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 5px 0;
+}
+
+.task span {
+  flex: 1;
+}
+
+.done {
+  text-decoration: line-through;
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.delete-btn {
+  cursor: pointer;
+  color: red;
+}

@@ -1,0 +1,31 @@
+body {
+  text-align: center;
+  font-family: Arial;
+}
+
+#palette {
+  display: grid;
+  grid-template-columns: repeat(6, 40px);
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.color {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  border: 2px solid black;
+}
+
+#grid {
+  display: grid;
+  grid-template-columns: repeat(20, 20px);
+  justify-content: center;
+}
+
+.cell {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #ccc;
+}
