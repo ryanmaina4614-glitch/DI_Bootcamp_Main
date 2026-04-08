@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Assignment - HTML Forms & JSON</title>
+</head>
+<body>
+
+  <h1>🌟 Exercise 1: HTML Form (GET)</h1>
+
+  <!-- GET FORM -->
+  <form method="GET" action="">
+    <label>Name:</label><br>
+    <input type="text" name="name"><br><br>
+
+    <label>Message:</label><br>
+    <textarea name="message" rows="5" cols="30"></textarea><br><br>
+
+    <input type="submit" value="Send">
+  </form>
+
+  <p><strong>Answer:</strong> The sent data appears in the URL as query parameters.</p>
+
+
+  <hr>
+
+
+  <h1>🌟 Exercise 2: HTML Form (POST)</h1>
+
+  <!-- POST FORM -->
+  <form method="POST" action="">
+    <label>Name:</label><br>
+    <input type="text" name="name"><br><br>
+
+    <label>Message:</label><br>
+    <textarea name="message" rows="5" cols="30"></textarea><br><br>
+
+    <input type="submit" value="Send">
+  </form>
+
+  <p><strong>Answer:</strong> The sent data does NOT appear in the URL. It is sent in the request body and can be viewed in the Network tab (Inspect → Network → Payload).</p>
+
+
+  <hr>
+
+
+  <h1>🌟 Exercise 3: JSON Mario</h1>
+
+  <pre id="jsonOutput"></pre>
+
+  <script>
+    // Original JS Object
+    const marioGame = {
+      detail: "An amazing game!",
+      characters: {
+        mario: {
+          description: "Small and jumpy. Likes princesses.",
+          height: 10,
+          weight: 3,
+          speed: 12,
+        },
+        bowser: {
+          description: "Big and green, Hates princesses.",
+          height: 16,
+          weight: 6,
+          speed: 4,
+        },
+        princessPeach: {
+          description: "Beautiful princess.",
+          height: 12,
+          weight: 2,
+          speed: 2,
+        }
+      },
+    };
+
+    // Convert to JSON
+    const jsonString = JSON.stringify(marioGame);
+
+    // Pretty Print JSON
+    const prettyJSON = JSON.stringify(marioGame, null, 2);
+
+    // Display Pretty JSON
+    document.getElementById("jsonOutput").textContent = prettyJSON;
+
+    // Answer logs
+    console.log("JSON String:", jsonString);
+    console.log("Pretty JSON:", prettyJSON);
+
+    /*
+      Answer:
+      - Nested objects are preserved in JSON format.
+      - They become nested JSON objects with the same structure.
+      - In the debugger, you can inspect the JSON string or parsed object values.
+    */
+  </script>
+
+</body>
+</html>

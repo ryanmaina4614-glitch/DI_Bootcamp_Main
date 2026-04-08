@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Form to JSON Output</title>
+</head>
+<body>
+
+  <h2>Form</h2>
+
+  <form id="userForm">
+    <label>First Name:</label><br>
+    <input type="text" id="firstName"><br><br>
+
+    <label>Last Name:</label><br>
+    <input type="text" id="lastName"><br><br>
+
+    <button type="submit">Send</button>
+  </form>
+
+  <h2>Output:</h2>
+  <pre id="output"></pre>
+
+  <script>
+    const form = document.getElementById("userForm");
+    const output = document.getElementById("output");
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault(); // prevent page reload
+
+      const firstName = document.getElementById("firstName").value;
+      const lastName = document.getElementById("lastName").value;
+
+      const data = {
+        name: firstName,
+        lastName: lastName
+      };
+
+      // Convert to JSON string
+      const jsonString = JSON.stringify(data, null, 2);
+
+      // Append to DOM
+      output.textContent = jsonString;
+    });
+  </script>
+
+</body>
+</html>

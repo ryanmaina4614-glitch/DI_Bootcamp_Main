@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Random Quote Generator</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 30px;
+    }
+    #quoteDisplay {
+      margin: 20px;
+      font-size: 20px;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    form {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1> Random Quote Generator</h1>
+
+  <section id="quoteDisplay"></section>
+
+  <button id="generateBtn">Generate Quote</button>
+
+  <div>
+    <button id="charBtn">Characters (with spaces)</button>
+    <button id="charNoSpaceBtn">Characters (no spaces)</button>
+    <button id="wordBtn">Word Count</button>
+    <button id="likeBtn"> Like</button>
+  </div>
+
+  <hr>
+
+  <h3>Add a Quote</h3>
+  <form id="addForm">
+    <input type="text" id="newQuote" placeholder="Quote" required>
+    <input type="text" id="newAuthor" placeholder="Author" required>
+    <button type="submit">Add Quote</button>
+  </form>
+
+  <hr>
+
+  <h3>Filter by Author</h3>
+  <form id="filterForm">
+    <input type="text" id="filterAuthor" placeholder="Author name">
+    <button type="submit">Filter</button>
+  </form>
+
+  <div>
+    <button id="prevBtn">⬅ Previous</button>
+    <button id="nextBtn">Next ➡</button>
+  </div>
+
+  <script>
+    let quotes = [
+      { id: 0, author: "Albert Einstein", quote: "Life is like riding a bicycle.", likes: 0 },
+      { id: 1, author: "Nelson Mandela", quote: "It always seems impossible until it's done.", likes: 0 },
+      { id: 2, author: "Steve Jobs", quote: "Stay hungry, stay foolish.", likes: 0 }
+    ];
+
+    let lastIndex = -1;
+    let currentIndex = null;
+    let filteredQuotes = [];
+    let filterIndex = 0;
+
+    const display = document.getElementById("quoteDisplay");
+
+    function showQuote(q) {
+      display.innerHTML = `
+        <p>"${q.quote}"</p>
+        <p>- ${q.author}</p>
+        <p> Likes: ${q.likes}</p>
+      `;
+    }
+
+    document.getElementById("generateBtn").onclick = () => {
+      let index;
+      do {
+        index = Math.floor(Math.random() * quotes.length);
+      } while (index === lastIndex);
+
+      lastIndex = index;
+      currentIndex = index;
+      showQuote(quotes[index]);
+    };
+
+    document.getElementById("charBtn").onclick = () => {
+      if (currentIndex !== null) {
+        alert(quotes[currentIndex].quote.length);
+      }
+    };
+
+    document.getElementById("charNoSpaceBtn").onclick = () => {
+      if (currentIndex !== null) {
+        let count = quotes[currentIndex].quote.replace(/\s/g, "").length;
+        alert(count);
+      }
+    };
+
+    document.getElementById("wordBtn").onclick = () => {
+      if (currentIndex !== null) {
+        let words = quotes[currentIndex].quote.split(" ").length;
+        alert(words);
+      }
+    };
+
+    document.getElementById("likeBtn").onclick = () => {
+      if (currentIndex !== null) {
+        quotes[currentIndex].likes++;
+        showQuote(quotes[currentIndex]);
+      }
+    };
+
+    document.getElementById("addForm").onsubmit = (e) => {
+      e.preventDefault();
+
+      const newQuote = document.getElementById("newQuote").value;
+      const newAuthor = document.getElementById("newAuthor").value;
+
+      quotes.push({
+        id: quotes.length,
+        author: newAuthor,
+        quote: newQuote,
+        likes: 0
+      });
+
+      e.target.reset();
+      alert("Quote added!");
+    };
+
+    document.getElementById("filterForm").onsubmit = (e) => {
+      e.preventDefault();
+
+      const author = document.getElementById("filterAuthor").value.toLowerCase();
+
+      filteredQuotes = quotes.filter(q => q.author.toLowerCase() === author);
+      filterIndex = 0;
+
+      if (filteredQuotes.length > 0) {
+        showQuote(filteredQuotes[filterIndex]);
+      } else {
+        display.innerHTML = "No quotes found.";
+      }
+    };
+
+    document.getElementById("nextBtn").onclick = () => {
+      if (filteredQuotes.length > 0) {
+        filterIndex = (filterIndex + 1) % filteredQuotes.length;
+        showQuote(filteredQuotes[filterIndex]);
+      }
+    };
+
+    document.getElementById("prevBtn").onclick = () => {
+      if (filteredQuotes.length > 0) {
+        filterIndex = (filterIndex - 1 + filteredQuotes.length) % filteredQuotes.length;
+        showQuote(filteredQuotes[filterIndex]);
+      }
+    };
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Result Page</title>
+</head>
+<body>
+
+  <h2>Submitted Data</h2>
+
+  <section id="output"></section>
+
+  <script>
+    // Get URL parameters
+    const params = new URLSearchParams(window.location.search);
+
+    const name = params.get("name");
+    const lastname = params.get("lastname");
+
+    // Display in DOM
+    document.getElementById("output").innerHTML = `
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Last Name:</strong> ${lastname}</p>
+    `;
+  </script>
+
+</body>
+</html>
