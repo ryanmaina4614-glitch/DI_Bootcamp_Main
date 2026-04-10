@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sunrise Comparison</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+    }
+    input {
+      margin: 5px;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Compare Sunrise Times</h2>
+
+  <form id="sunForm">
+    <h3>City 1</h3>
+    <input type="number" step="any" id="lat1" placeholder="Latitude" required>
+    <input type="number" step="any" id="lng1" placeholder="Longitude" required>
+
+    <h3>City 2</h3>
+    <input type="number" step="any" id="lat2" placeholder="Latitude" required>
+    <input type="number" step="any" id="lng2" placeholder="Longitude" required>
+
+    <br><br>
+    <button type="submit">Get Sunrise Times</button>
+  </form>
+
+  <h3 id="result"></h3>
+
+  <script>
+    const form = document.getElementById("sunForm");
+    const result = document.getElementById("result");
+
+    // Function to fetch sunrise time
+    function getSunrise(lat, lng) {
+      return fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lng}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          return response.json();
+        })
+        .then(data => data.results.sunrise);
+    }
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const lat1 = document.getElementById("lat1").value;
+      const lng1 = document.getElementById("lng1").value;
+      const lat2 = document.getElementById("lat2").value;
+      const lng2 = document.getElementById("lng2").value;
+
+      // Run both requests together
+      Promise.all([
+        getSunrise(lat1, lng1),
+        getSunrise(lat2, lng2)
+      ])
+      .then(([sunrise1, sunrise2]) => {
+        result.textContent = `City 1 Sunrise: ${sunrise1} | City 2 Sunrise: ${sunrise2}`;
+      })
+      .catch(error => {
+        console.error(error);
+        result.textContent = "Error fetching sunrise data";
+      });
+    });
+  </script>
+
+</body>
+</html>

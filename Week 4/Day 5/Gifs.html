@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Random Giphy Generator</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+    }
+    .gif-box {
+      margin: 15px;
+    }
+    img {
+      width: 200px;
+      display: block;
+      margin: 10px auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Random GIF Generator</h2>
+
+  <!-- Form -->
+  <form id="gifForm">
+    <input type="text" id="categoryInput" placeholder="Enter category..." required>
+    <button type="submit">Get GIF</button>
+  </form>
+
+  <!-- Delete All Button -->
+  <button id="deleteAllBtn">DELETE ALL</button>
+
+  <!-- Container -->
+  <div id="gifContainer"></div>
+
+  <script>
+    const form = document.getElementById("gifForm");
+    const input = document.getElementById("categoryInput");
+    const container = document.getElementById("gifContainer");
+    const deleteAllBtn = document.getElementById("deleteAllBtn");
+
+    const API_KEY = "hpvZycW22qCjn5cRM1xtWB8NKq4dQ2My";
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const category = input.value;
+
+      try {
+        const response = await fetch(
+          `https://api.giphy.com/v1/gifs/random?tag=${category}&api_key=${API_KEY}`
+        );
+
+        // Check response
+        if (!response.ok) {
+          throw new Error("Failed to fetch GIF");
+        }
+
+        const data = await response.json();
+
+        // Get GIF URL
+        const gifUrl = data.data.images.original.url;
+
+        // Create container for each GIF
+        const gifBox = document.createElement("div");
+        gifBox.classList.add("gif-box");
+
+        // Create image
+        const img = document.createElement("img");
+        img.src = gifUrl;
+
+        // Create delete button
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "DELETE";
+
+        // Delete specific GIF
+        deleteBtn.addEventListener("click", function () {
+          gifBox.remove();
+        });
+
+        // Append elements
+        gifBox.appendChild(img);
+        gifBox.appendChild(deleteBtn);
+        container.appendChild(gifBox);
+
+      } catch (error) {
+        console.error("Error:", error);
+      }
+
+      input.value = "";
+    });
+
+    // Delete all GIFs
+    deleteAllBtn.addEventListener("click", function () {
+      container.innerHTML = "";
+    });
+
+  </script>
+
+</body>
+</html>
