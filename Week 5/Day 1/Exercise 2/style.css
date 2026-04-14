@@ -1,0 +1,26 @@
+body {
+  text-align: center;
+  font-family: Arial;
+}
+
+.pokedex {
+  width: 300px;
+  margin: auto;
+  padding: 20px;
+  border: 2px solid red;
+  border-radius: 10px;
+}
+
+img {
+  width: 150px;
+}
+
+button {
+  margin: 5px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+#message {
+  color: red;
+}
