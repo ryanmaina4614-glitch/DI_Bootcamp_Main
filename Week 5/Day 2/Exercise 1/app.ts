@@ -5,10 +5,10 @@ console.log("Hello, World!");
 
 // 🌟 Exercise 2: Type Annotations
 let age: number = 25;
-let name: string = "Ryan";
+let names: string = "Ryan";
 
 console.log("Age:", age);
-console.log("Name:", name);
+console.log("Names:", names);
 
 
 // 🌟 Exercise 3: Union Types
