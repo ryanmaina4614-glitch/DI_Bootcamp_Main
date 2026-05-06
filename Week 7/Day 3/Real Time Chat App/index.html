@@ -1,0 +1,721 @@
+/*
+========================================================
+🌟 REAL-TIME CHAT APPLICATION
+USING EXPRESS + SOCKET.IO + HTML/CSS
+========================================================
+
+📁 PROJECT STRUCTURE
+chat-app/
+│
+├── package.json
+├── server.js
+│
+└── public/
+    ├── index.html
+    ├── style.css
+    └── client.js
+
+========================================================
+STEP 1: CREATE PROJECT
+========================================================
+
+mkdir chat-app
+cd chat-app
+
+========================================================
+STEP 2: INITIALIZE NODE PROJECT
+========================================================
+
+npm init -y
+
+========================================================
+STEP 3: INSTALL DEPENDENCIES
+========================================================
+
+npm install express socket.io
+
+========================================================
+FILE: server.js
+========================================================
+*/
+
+const express = require("express");
+
+const http = require("http");
+
+const { Server } = require("socket.io");
+
+const path = require("path");
+
+const app = express();
+
+const server = http.createServer(app);
+
+const io = new Server(server);
+
+/*
+========================================================
+STATIC FILES
+========================================================
+*/
+
+app.use(express.static(path.join(__dirname, "public")));
+
+/*
+========================================================
+STORE USERS
+========================================================
+*/
+
+const users = {};
+
+/*
+========================================================
+SOCKET CONNECTION
+========================================================
+*/
+
+io.on("connection", (socket) => {
+
+  console.log("A user connected");
+
+/*
+========================================================
+JOIN ROOM
+========================================================
+*/
+
+socket.on("joinRoom", ({ username, room }) => {
+
+  users[socket.id] = {
+    username,
+    room,
+  };
+
+  socket.join(room);
+
+  // WELCOME MESSAGE
+  socket.emit("message", {
+    user: "System",
+    text: `Welcome ${username} to ${room}`,
+  });
+
+  // BROADCAST JOIN
+  socket.to(room).emit("message", {
+    user: "System",
+    text: `${username} has joined the chat`,
+  });
+
+  // UPDATE USERS
+  updateRoomUsers(room);
+
+});
+
+/*
+========================================================
+SEND MESSAGE
+========================================================
+*/
+
+socket.on("chatMessage", (message) => {
+
+  const user = users[socket.id];
+
+  if(user){
+
+    io.to(user.room).emit("message", {
+      user: user.username,
+      text: message,
+    });
+
+  }
+
+});
+
+/*
+========================================================
+DISCONNECT
+========================================================
+*/
+
+socket.on("disconnect", () => {
+
+  const user = users[socket.id];
+
+  if(user){
+
+    io.to(user.room).emit("message", {
+      user: "System",
+      text: `${user.username} left the chat`,
+    });
+
+    delete users[socket.id];
+
+    updateRoomUsers(user.room);
+
+  }
+
+  console.log("User disconnected");
+
+});
+
+});
+
+/*
+========================================================
+UPDATE ACTIVE USERS
+========================================================
+*/
+
+function updateRoomUsers(room){
+
+  const roomUsers = [];
+
+  for(let id in users){
+
+    if(users[id].room === room){
+
+      roomUsers.push(users[id].username);
+
+    }
+
+  }
+
+  io.to(room).emit("roomUsers", roomUsers);
+
+}
+
+/*
+========================================================
+START SERVER
+========================================================
+*/
+
+const PORT = 3000;
+
+server.listen(PORT, () => {
+
+  console.log(
+    `Chat server running on http://localhost:${PORT}`
+  );
+
+});
+
+/*
+========================================================
+FILE: public/index.html
+========================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+  content="width=device-width, initial-scale=1.0">
+
+  <title>Real-Time Chat App</title>
+
+  <link rel="stylesheet"
+  href="style.css">
+
+</head>
+
+<body>
+
+<!--
+========================================================
+JOIN SCREEN
+========================================================
+-->
+
+<div id="join-container">
+
+  <h1>Join Chat Room</h1>
+
+  <input
+    type="text"
+    id="username"
+    placeholder="Enter username"
+  />
+
+  <input
+    type="text"
+    id="room"
+    placeholder="Enter room name"
+  />
+
+  <button id="join-btn">
+    Join Chat
+  </button>
+
+</div>
+
+<!--
+========================================================
+CHAT SCREEN
+========================================================
+-->
+
+<div id="chat-container" class="hidden">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+
+    <h2>Active Users</h2>
+
+    <ul id="users-list"></ul>
+
+  </div>
+
+  <!-- CHAT AREA -->
+  <div id="chat-area">
+
+    <div id="messages"></div>
+
+    <form id="message-form">
+
+      <input
+        type="text"
+        id="message-input"
+        placeholder="Type a message..."
+        autocomplete="off"
+      />
+
+      <button type="submit">
+        Send
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script src="client.js"></script>
+
+</body>
+</html>
+
+<!--
+========================================================
+FILE: public/style.css
+========================================================
+-->
+
+body{
+
+  margin:0;
+
+  padding:0;
+
+  font-family:Arial;
+
+  background:#f4f4f4;
+
+}
+
+/*
+========================================================
+JOIN SCREEN
+========================================================
+*/
+
+#join-container{
+
+  width:350px;
+
+  margin:100px auto;
+
+  background:white;
+
+  padding:30px;
+
+  border-radius:10px;
+
+  text-align:center;
+
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+
+}
+
+#join-container input{
+
+  width:90%;
+
+  padding:10px;
+
+  margin:10px 0;
+
+}
+
+#join-container button{
+
+  width:95%;
+
+  padding:10px;
+
+  border:none;
+
+  background:#007bff;
+
+  color:white;
+
+  cursor:pointer;
+
+}
+
+/*
+========================================================
+CHAT LAYOUT
+========================================================
+*/
+
+#chat-container{
+
+  display:flex;
+
+  height:100vh;
+
+}
+
+/*
+========================================================
+SIDEBAR
+========================================================
+*/
+
+#sidebar{
+
+  width:250px;
+
+  background:#222;
+
+  color:white;
+
+  padding:20px;
+
+}
+
+#users-list{
+
+  list-style:none;
+
+  padding:0;
+
+}
+
+#users-list li{
+
+  padding:10px 0;
+
+  border-bottom:1px solid #444;
+
+}
+
+/*
+========================================================
+CHAT AREA
+========================================================
+*/
+
+#chat-area{
+
+  flex:1;
+
+  display:flex;
+
+  flex-direction:column;
+
+}
+
+#messages{
+
+  flex:1;
+
+  padding:20px;
+
+  overflow-y:auto;
+
+}
+
+.message{
+
+  background:white;
+
+  padding:10px;
+
+  margin-bottom:10px;
+
+  border-radius:5px;
+
+  box-shadow:0 0 5px rgba(0,0,0,0.1);
+
+}
+
+/*
+========================================================
+MESSAGE FORM
+========================================================
+*/
+
+#message-form{
+
+  display:flex;
+
+  padding:10px;
+
+  background:#ddd;
+
+}
+
+#message-input{
+
+  flex:1;
+
+  padding:10px;
+
+}
+
+#message-form button{
+
+  padding:10px 20px;
+
+  border:none;
+
+  background:green;
+
+  color:white;
+
+  cursor:pointer;
+
+}
+
+/*
+========================================================
+HIDDEN CLASS
+========================================================
+*/
+
+.hidden{
+
+  display:none !important;
+
+}
+
+<!--
+========================================================
+FILE: public/client.js
+========================================================
+-->
+
+const socket = io();
+
+/*
+========================================================
+ELEMENTS
+========================================================
+*/
+
+const joinContainer =
+  document.getElementById("join-container");
+
+const chatContainer =
+  document.getElementById("chat-container");
+
+const joinBtn =
+  document.getElementById("join-btn");
+
+const usernameInput =
+  document.getElementById("username");
+
+const roomInput =
+  document.getElementById("room");
+
+const messageForm =
+  document.getElementById("message-form");
+
+const messageInput =
+  document.getElementById("message-input");
+
+const messagesDiv =
+  document.getElementById("messages");
+
+const usersList =
+  document.getElementById("users-list");
+
+let username = "";
+let room = "";
+
+/*
+========================================================
+JOIN ROOM
+========================================================
+*/
+
+joinBtn.addEventListener("click", () => {
+
+  username = usernameInput.value.trim();
+
+  room = roomInput.value.trim();
+
+  if(username === "" || room === ""){
+
+    alert("Please enter username and room");
+
+    return;
+
+  }
+
+  socket.emit("joinRoom", {
+    username,
+    room
+  });
+
+  joinContainer.classList.add("hidden");
+
+  chatContainer.classList.remove("hidden");
+
+});
+
+/*
+========================================================
+SEND MESSAGE
+========================================================
+*/
+
+messageForm.addEventListener("submit", (e) => {
+
+  e.preventDefault();
+
+  const message = messageInput.value;
+
+  if(message.trim() !== ""){
+
+    socket.emit("chatMessage", message);
+
+    messageInput.value = "";
+
+  }
+
+});
+
+/*
+========================================================
+DISPLAY MESSAGES
+========================================================
+*/
+
+socket.on("message", (message) => {
+
+  const div = document.createElement("div");
+
+  div.classList.add("message");
+
+  div.innerHTML = `
+    <strong>${message.user}:</strong>
+    ${message.text}
+  `;
+
+  messagesDiv.appendChild(div);
+
+  // AUTO SCROLL
+  messagesDiv.scrollTop =
+    messagesDiv.scrollHeight;
+
+  // NOTIFICATION
+  if(Notification.permission === "granted"){
+
+    new Notification(
+      `${message.user}: ${message.text}`
+    );
+
+  }
+
+});
+
+/*
+========================================================
+DISPLAY ACTIVE USERS
+========================================================
+*/
+
+socket.on("roomUsers", (users) => {
+
+  usersList.innerHTML = "";
+
+  users.forEach(user => {
+
+    const li = document.createElement("li");
+
+    li.innerText = user;
+
+    usersList.appendChild(li);
+
+  });
+
+});
+
+/*
+========================================================
+REQUEST NOTIFICATION PERMISSION
+========================================================
+*/
+
+if(Notification.permission !== "granted"){
+
+  Notification.requestPermission();
+
+}
+
+========================================================
+STEP 4: RUN SERVER
+========================================================
+
+node server.js
+
+========================================================
+STEP 5: OPEN APPLICATION
+========================================================
+
+http://localhost:3000
+
+========================================================
+FEATURES IMPLEMENTED
+========================================================
+
+✔ Real-Time Messaging
+✔ Express Server
+✔ Socket.io Integration
+✔ Join Chat Rooms
+✔ Leave Chat Rooms
+✔ Active Users List
+✔ Notifications
+✔ Username Selection
+✔ Modern Chat UI
+✔ Responsive Layout
+✔ Multiple Chat Rooms
+✔ Broadcast Messages
+✔ User-Friendly Interface
+
+========================================================
+OPTIONAL FEATURES YOU CAN ADD
+========================================================
+
+✔ Private Messaging
+✔ Emojis
+✔ Profile Pictures
+✔ Chat History
+✔ Authentication
+✔ Media Sharing
+✔ Themes / Dark Mode
+
+========================================================
+✅ END OF ASSIGNMENT
+========================================================
+*/

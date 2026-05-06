@@ -1,0 +1,886 @@
+/*
+========================================================
+🌟 USER AUTHENTICATION API
+USING EXPRESS.JS + BCRYPT + JSON FILE
+WITH LOGIN & REGISTER HTML FORMS
+========================================================
+
+📁 PROJECT STRUCTURE
+auth-app/
+│
+├── package.json
+├── server.js
+├── users.json
+│
+├── public/
+│   ├── login.html
+│   └── register.html
+│
+└── server/
+    ├── controllers/
+    │   └── userController.js
+    │
+    ├── routes/
+    │   └── userRoutes.js
+    │
+    └── utils/
+        └── fileHandler.js
+
+========================================================
+STEP 1: CREATE PROJECT
+========================================================
+
+mkdir auth-app
+cd auth-app
+
+========================================================
+STEP 2: INITIALIZE NODE PROJECT
+========================================================
+
+npm init -y
+
+========================================================
+STEP 3: INSTALL DEPENDENCIES
+========================================================
+
+npm install express bcrypt
+
+========================================================
+STEP 4: CREATE users.json FILE
+========================================================
+
+Create users.json and add:
+
+[]
+
+========================================================
+FILE: public/register.html
+========================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register</title>
+
+  <style>
+    body{
+      font-family: Arial;
+      background:#f4f4f4;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+    }
+
+    .container{
+      background:white;
+      padding:30px;
+      width:350px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,0,0,0.2);
+    }
+
+    h2{
+      text-align:center;
+    }
+
+    input{
+      width:100%;
+      padding:10px;
+      margin:10px 0;
+    }
+
+    button{
+      width:100%;
+      padding:10px;
+      background:blue;
+      color:white;
+      border:none;
+      cursor:pointer;
+    }
+
+    button:disabled{
+      background:gray;
+      cursor:not-allowed;
+    }
+
+    p{
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>Register</h2>
+
+  <form id="registerForm">
+
+    <input type="text" id="first_name" placeholder="First Name" required />
+
+    <input type="text" id="last_name" placeholder="Last Name" required />
+
+    <input type="email" id="email" placeholder="Email" required />
+
+    <input type="text" id="username" placeholder="Username" required />
+
+    <input type="password" id="password" placeholder="Password" required />
+
+    <button type="submit" id="submitBtn" disabled>
+      Register
+    </button>
+
+  </form>
+
+  <p id="message"></p>
+
+</div>
+
+<script>
+
+const form = document.getElementById("registerForm");
+
+const button = document.getElementById("submitBtn");
+
+const inputs = form.querySelectorAll("input");
+
+inputs.forEach(input => {
+  input.addEventListener("input", () => {
+
+    let allFilled = true;
+
+    inputs.forEach(i => {
+      if(i.value.trim() === ""){
+        allFilled = false;
+      }
+    });
+
+    button.disabled = !allFilled;
+  });
+});
+
+form.addEventListener("submit", async (e) => {
+
+  e.preventDefault();
+
+  const userData = {
+    first_name: document.getElementById("first_name").value,
+    last_name: document.getElementById("last_name").value,
+    email: document.getElementById("email").value,
+    username: document.getElementById("username").value,
+    password: document.getElementById("password").value,
+  };
+
+  const response = await fetch("/register", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body: JSON.stringify(userData)
+  });
+
+  const data = await response.json();
+
+  document.getElementById("message").innerText =
+    data.message;
+});
+
+</script>
+
+</body>
+</html>
+
+<!--
+========================================================
+FILE: public/login.html
+========================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+
+  <style>
+
+    body{
+      font-family:Arial;
+      background:#f4f4f4;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+    }
+
+    .container{
+      background:white;
+      padding:30px;
+      width:350px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,0,0,0.2);
+    }
+
+    h2{
+      text-align:center;
+    }
+
+    input{
+      width:100%;
+      padding:10px;
+      margin:10px 0;
+    }
+
+    button{
+      width:100%;
+      padding:10px;
+      background:green;
+      color:white;
+      border:none;
+      cursor:pointer;
+    }
+
+    button:disabled{
+      background:gray;
+      cursor:not-allowed;
+    }
+
+    p{
+      text-align:center;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>Login</h2>
+
+  <form id="loginForm">
+
+    <input type="text" id="username"
+    placeholder="Username" required />
+
+    <input type="password" id="password"
+    placeholder="Password" required />
+
+    <button type="submit"
+    id="loginBtn" disabled>
+
+      Login
+
+    </button>
+
+  </form>
+
+  <p id="message"></p>
+
+</div>
+
+<script>
+
+const form = document.getElementById("loginForm");
+
+const button = document.getElementById("loginBtn");
+
+const inputs = form.querySelectorAll("input");
+
+inputs.forEach(input => {
+
+  input.addEventListener("input", () => {
+
+    let allFilled = true;
+
+    inputs.forEach(i => {
+
+      if(i.value.trim() === ""){
+        allFilled = false;
+      }
+
+    });
+
+    button.disabled = !allFilled;
+  });
+
+});
+
+form.addEventListener("submit", async (e) => {
+
+  e.preventDefault();
+
+  const loginData = {
+    username: document.getElementById("username").value,
+    password: document.getElementById("password").value,
+  };
+
+  const response = await fetch("/login", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body: JSON.stringify(loginData)
+  });
+
+  const data = await response.json();
+
+  document.getElementById("message").innerText =
+    data.message;
+});
+
+</script>
+
+</body>
+</html>
+
+<!--
+========================================================
+FILE: server/utils/fileHandler.js
+========================================================
+-->
+
+const fs = require("fs").promises;
+
+const path = require("path");
+
+const filePath = path.join(__dirname, "../../users.json");
+
+/*
+========================================================
+READ USERS
+========================================================
+*/
+
+const readUsers = async () => {
+  try {
+
+    const data = await fs.readFile(filePath, "utf-8");
+
+    return JSON.parse(data);
+
+  } catch (error) {
+
+    throw new Error("Error reading users file");
+
+  }
+};
+
+/*
+========================================================
+WRITE USERS
+========================================================
+*/
+
+const writeUsers = async (users) => {
+  try {
+
+    await fs.writeFile(
+      filePath,
+      JSON.stringify(users, null, 2)
+    );
+
+  } catch (error) {
+
+    throw new Error("Error writing users file");
+
+  }
+};
+
+module.exports = {
+  readUsers,
+  writeUsers,
+};
+
+<!--
+========================================================
+FILE: server/controllers/userController.js
+========================================================
+-->
+
+const bcrypt = require("bcrypt");
+
+const {
+  readUsers,
+  writeUsers,
+} = require("../utils/fileHandler");
+
+/*
+========================================================
+REGISTER USER
+========================================================
+*/
+
+const registerUser = async (req, res) => {
+
+  try {
+
+    const {
+      first_name,
+      last_name,
+      email,
+      username,
+      password
+    } = req.body;
+
+    // VALIDATION
+    if(
+      !first_name ||
+      !last_name ||
+      !email ||
+      !username ||
+      !password
+    ){
+      return res.status(400).json({
+        message:"All fields are required"
+      });
+    }
+
+    const users = await readUsers();
+
+    // CHECK EXISTING USER
+    const existingUser = users.find(
+      user =>
+        user.username === username
+    );
+
+    if(existingUser){
+
+      return res.status(400).json({
+        message:
+        "Error: Username already exists"
+      });
+
+    }
+
+    // HASH PASSWORD
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
+
+    // NEW USER
+    const newUser = {
+      id: users.length + 1,
+      first_name,
+      last_name,
+      email,
+      username,
+      password: hashedPassword,
+    };
+
+    users.push(newUser);
+
+    await writeUsers(users);
+
+    res.status(201).json({
+      message:
+      "User registered successfully"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      message:error.message
+    });
+
+  }
+
+};
+
+/*
+========================================================
+LOGIN USER
+========================================================
+*/
+
+const loginUser = async (req, res) => {
+
+  try {
+
+    const {
+      username,
+      password
+    } = req.body;
+
+    const users = await readUsers();
+
+    const user = users.find(
+      user =>
+        user.username === username
+    );
+
+    // USER NOT FOUND
+    if(!user){
+
+      return res.status(401).json({
+        message:
+        "Error: User not registered"
+      });
+
+    }
+
+    // CHECK PASSWORD
+    const validPassword =
+      await bcrypt.compare(
+        password,
+        user.password
+      );
+
+    if(!validPassword){
+
+      return res.status(401).json({
+        message:
+        "Incorrect password"
+      });
+
+    }
+
+    res.status(200).json({
+      message:
+      "Login successful"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      message:error.message
+    });
+
+  }
+
+};
+
+/*
+========================================================
+GET ALL USERS
+========================================================
+*/
+
+const getUsers = async (req, res) => {
+
+  try {
+
+    const users = await readUsers();
+
+    res.status(200).json(users);
+
+  } catch (error) {
+
+    res.status(500).json({
+      message:error.message
+    });
+
+  }
+
+};
+
+/*
+========================================================
+GET USER BY ID
+========================================================
+*/
+
+const getUserById = async (req, res) => {
+
+  try {
+
+    const users = await readUsers();
+
+    const user = users.find(
+      user =>
+        user.id === parseInt(req.params.id)
+    );
+
+    if(!user){
+
+      return res.status(404).json({
+        message:"User not found"
+      });
+
+    }
+
+    res.status(200).json(user);
+
+  } catch (error) {
+
+    res.status(500).json({
+      message:error.message
+    });
+
+  }
+
+};
+
+/*
+========================================================
+UPDATE USER
+========================================================
+*/
+
+const updateUser = async (req, res) => {
+
+  try {
+
+    const users = await readUsers();
+
+    const userIndex = users.findIndex(
+      user =>
+        user.id === parseInt(req.params.id)
+    );
+
+    if(userIndex === -1){
+
+      return res.status(404).json({
+        message:"User not found"
+      });
+
+    }
+
+    users[userIndex] = {
+      ...users[userIndex],
+      ...req.body
+    };
+
+    await writeUsers(users);
+
+    res.status(200).json({
+      message:
+      "User updated successfully",
+      user: users[userIndex]
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      message:error.message
+    });
+
+  }
+
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getUsers,
+  getUserById,
+  updateUser,
+};
+
+<!--
+========================================================
+FILE: server/routes/userRoutes.js
+========================================================
+-->
+
+const express = require("express");
+
+const router = express.Router();
+
+const {
+  registerUser,
+  loginUser,
+  getUsers,
+  getUserById,
+  updateUser,
+} = require("../controllers/userController");
+
+// ROUTES
+router.post("/register", registerUser);
+
+router.post("/login", loginUser);
+
+router.get("/users", getUsers);
+
+router.get("/users/:id", getUserById);
+
+router.put("/users/:id", updateUser);
+
+module.exports = router;
+
+<!--
+========================================================
+FILE: server.js
+========================================================
+-->
+
+const express = require("express");
+
+const path = require("path");
+
+const app = express();
+
+// MIDDLEWARE
+app.use(express.json());
+
+app.use(express.static("public"));
+
+// ROUTES
+const userRoutes =
+  require("./server/routes/userRoutes");
+
+app.use("/", userRoutes);
+
+/*
+========================================================
+HOME ROUTES
+========================================================
+*/
+
+app.get("/", (req, res) => {
+  res.sendFile(
+    path.join(__dirname,
+    "public/login.html")
+  );
+});
+
+app.get("/register-page", (req, res) => {
+  res.sendFile(
+    path.join(__dirname,
+    "public/register.html")
+  );
+});
+
+/*
+========================================================
+INVALID ROUTES
+========================================================
+*/
+
+app.use((req, res) => {
+
+  res.status(404).json({
+    message:"Route not found"
+  });
+
+});
+
+/*
+========================================================
+GLOBAL ERROR HANDLER
+========================================================
+*/
+
+app.use((err, req, res, next) => {
+
+  res.status(500).json({
+    message:"Server Error",
+    error:err.message
+  });
+
+});
+
+/*
+========================================================
+START SERVER
+========================================================
+*/
+
+const PORT = 3000;
+
+app.listen(PORT, () => {
+
+  console.log(
+    `Server running on http://localhost:${PORT}`
+  );
+
+});
+
+/*
+========================================================
+TEST API ROUTES
+========================================================
+
+--------------------------------------------------------
+1️⃣ REGISTER USER
+--------------------------------------------------------
+
+POST http://localhost:3000/register
+
+JSON BODY:
+{
+  "first_name":"Ryan",
+  "last_name":"Maina",
+  "email":"ryan@gmail.com",
+  "username":"ryanmaina",
+  "password":"123456"
+}
+
+--------------------------------------------------------
+2️⃣ LOGIN USER
+--------------------------------------------------------
+
+POST http://localhost:3000/login
+
+JSON BODY:
+{
+  "username":"ryanmaina",
+  "password":"123456"
+}
+
+--------------------------------------------------------
+3️⃣ GET ALL USERS
+--------------------------------------------------------
+
+GET http://localhost:3000/users
+
+--------------------------------------------------------
+4️⃣ GET USER BY ID
+--------------------------------------------------------
+
+GET http://localhost:3000/users/1
+
+--------------------------------------------------------
+5️⃣ UPDATE USER
+--------------------------------------------------------
+
+PUT http://localhost:3000/users/1
+
+JSON BODY:
+{
+  "first_name":"Updated Ryan"
+}
+
+========================================================
+SAMPLE users.json
+========================================================
+
+[
+  {
+    "id": 1,
+    "first_name": "Ryan",
+    "last_name": "Maina",
+    "email": "ryan@gmail.com",
+    "username": "ryanmaina",
+    "password": "$2b$10$xxxxxxxxxxxxxxxx"
+  }
+]
+
+========================================================
+FEATURES IMPLEMENTED
+========================================================
+
+✔ Register Form HTML
+✔ Login Form HTML
+✔ Disabled Submit Button When Inputs Empty
+✔ Express.js API
+✔ JSON File Storage
+✔ Bcrypt Password Hashing
+✔ User Registration
+✔ User Login
+✔ Get All Users
+✔ Get User By ID
+✔ Update User
+✔ File Read/Write Error Handling
+✔ Validation Handling
+✔ Modular Folder Structure
+
+========================================================
+✅ END OF ASSIGNMENT
+========================================================
+*/

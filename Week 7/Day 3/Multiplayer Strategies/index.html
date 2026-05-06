@@ -1,0 +1,910 @@
+/*
+========================================================
+🌟 TURN-BASED MULTIPLAYER STRATEGY GAME
+USING EXPRESS + REST API + HTML/CSS/JS
+========================================================
+
+📁 PROJECT STRUCTURE
+strategy-game/
+│
+├── package.json
+├── server.js
+│
+└── public/
+    ├── index.html
+    ├── style.css
+    └── app.js
+
+========================================================
+STEP 1: CREATE PROJECT
+========================================================
+
+mkdir strategy-game
+cd strategy-game
+
+========================================================
+STEP 2: INITIALIZE PROJECT
+========================================================
+
+npm init -y
+
+========================================================
+STEP 3: INSTALL DEPENDENCIES
+========================================================
+
+npm install express body-parser
+
+========================================================
+FILE: server.js
+========================================================
+*/
+
+const express = require("express");
+
+const bodyParser = require("body-parser");
+
+const path = require("path");
+
+const app = express();
+
+/*
+========================================================
+MIDDLEWARE
+========================================================
+*/
+
+app.use(bodyParser.json());
+
+app.use(express.static("public"));
+
+/*
+========================================================
+GAME CONSTANTS
+========================================================
+*/
+
+const GRID_SIZE = 10;
+
+/*
+========================================================
+GAME STATE
+========================================================
+*/
+
+let game = {
+
+  players: {},
+
+  turn: "player1",
+
+  winner: null,
+
+  obstacles: [
+    { x: 4, y: 4 },
+    { x: 4, y: 5 },
+    { x: 5, y: 4 },
+    { x: 5, y: 5 },
+  ],
+
+};
+
+/*
+========================================================
+START NEW GAME
+========================================================
+*/
+
+function initializeGame(){
+
+  game.players = {
+
+    player1: {
+      username: "Player 1",
+      position: { x: 0, y: 0 },
+      base: { x: 0, y: 0 },
+    },
+
+    player2: {
+      username: "Player 2",
+      position: { x: 9, y: 9 },
+      base: { x: 9, y: 9 },
+    },
+
+  };
+
+  game.turn = "player1";
+
+  game.winner = null;
+
+}
+
+initializeGame();
+
+/*
+========================================================
+USER REGISTER
+========================================================
+*/
+
+app.post("/register", (req, res) => {
+
+  const { username } = req.body;
+
+  res.json({
+    message: `${username} registered successfully`
+  });
+
+});
+
+/*
+========================================================
+USER LOGIN
+========================================================
+*/
+
+app.post("/login", (req, res) => {
+
+  const { username } = req.body;
+
+  res.json({
+    message: `${username} logged in successfully`
+  });
+
+});
+
+/*
+========================================================
+START NEW GAME
+========================================================
+*/
+
+app.post("/game/start", (req, res) => {
+
+  initializeGame();
+
+  res.json({
+    message: "New game started",
+    game,
+  });
+
+});
+
+/*
+========================================================
+GET GAME STATE
+========================================================
+*/
+
+app.get("/game", (req, res) => {
+
+  res.json(game);
+
+});
+
+/*
+========================================================
+MAKE MOVE
+========================================================
+*/
+
+app.post("/game/move", (req, res) => {
+
+  const { player, direction } = req.body;
+
+  // CHECK WINNER
+  if(game.winner){
+
+    return res.json({
+      message:
+      `Game over! ${game.winner} won`
+    });
+
+  }
+
+  // CHECK TURN
+  if(player !== game.turn){
+
+    return res.status(400).json({
+      message:
+      `It's ${game.turn}'s turn`
+    });
+
+  }
+
+  const currentPlayer =
+    game.players[player];
+
+  const opponent =
+    player === "player1"
+    ? game.players.player2
+    : game.players.player1;
+
+  let newX =
+    currentPlayer.position.x;
+
+  let newY =
+    currentPlayer.position.y;
+
+  /*
+  ========================================================
+  MOVE LOGIC
+  ========================================================
+  */
+
+  switch(direction){
+
+    case "up":
+      newY--;
+      break;
+
+    case "down":
+      newY++;
+      break;
+
+    case "left":
+      newX--;
+      break;
+
+    case "right":
+      newX++;
+      break;
+
+    default:
+      return res.status(400).json({
+        message:"Invalid direction"
+      });
+
+  }
+
+  /*
+  ========================================================
+  CHECK GRID BOUNDARIES
+  ========================================================
+  */
+
+  if(
+    newX < 0 ||
+    newY < 0 ||
+    newX >= GRID_SIZE ||
+    newY >= GRID_SIZE
+  ){
+
+    return res.status(400).json({
+      message:"Move out of bounds"
+    });
+
+  }
+
+  /*
+  ========================================================
+  CHECK OBSTACLES
+  ========================================================
+  */
+
+  const obstacle =
+    game.obstacles.find(
+      obs =>
+        obs.x === newX &&
+        obs.y === newY
+    );
+
+  if(obstacle){
+
+    return res.status(400).json({
+      message:
+      "Cannot move through obstacle"
+    });
+
+  }
+
+  /*
+  ========================================================
+  UPDATE POSITION
+  ========================================================
+  */
+
+  currentPlayer.position = {
+    x:newX,
+    y:newY,
+  };
+
+  /*
+  ========================================================
+  CHECK WIN CONDITION
+  ========================================================
+  */
+
+  if(
+    newX === opponent.base.x &&
+    newY === opponent.base.y
+  ){
+
+    game.winner = player;
+
+    return res.json({
+      message:
+      `${player} captured the base and wins!`,
+      game,
+    });
+
+  }
+
+  /*
+  ========================================================
+  CHECK ATTACK RANGE
+  ========================================================
+  */
+
+  const distanceX =
+    Math.abs(newX - opponent.base.x);
+
+  const distanceY =
+    Math.abs(newY - opponent.base.y);
+
+  if(
+    distanceX + distanceY === 1
+  ){
+
+    return res.json({
+      message:
+      `${player} is attacking opponent's base!`,
+      game,
+    });
+
+  }
+
+  /*
+  ========================================================
+  SWITCH TURN
+  ========================================================
+  */
+
+  game.turn =
+    player === "player1"
+    ? "player2"
+    : "player1";
+
+  res.json({
+    message:
+    `${player} moved ${direction}`,
+    game,
+  });
+
+});
+
+/*
+========================================================
+INVALID ROUTES
+========================================================
+*/
+
+app.use((req, res) => {
+
+  res.status(404).json({
+    message:"Route not found"
+  });
+
+});
+
+/*
+========================================================
+START SERVER
+========================================================
+*/
+
+const PORT = 3000;
+
+app.listen(PORT, () => {
+
+  console.log(
+    `Strategy Game running on http://localhost:${PORT}`
+  );
+
+});
+
+<!--
+========================================================
+FILE: public/index.html
+========================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+  content="width=device-width, initial-scale=1.0">
+
+  <title>Strategy Game</title>
+
+  <link rel="stylesheet"
+  href="style.css">
+
+</head>
+
+<body>
+
+<h1>🌟 Turn-Based Strategy Game</h1>
+
+<!--
+========================================================
+GAME INFO
+========================================================
+-->
+
+<div id="info">
+
+  <h2 id="turn-text">
+    Current Turn: Player 1
+  </h2>
+
+  <button id="start-btn">
+    Start New Game
+  </button>
+
+</div>
+
+<!--
+========================================================
+GAME BOARD
+========================================================
+-->
+
+<div id="board"></div>
+
+<!--
+========================================================
+CONTROLS
+========================================================
+-->
+
+<div id="controls">
+
+  <button onclick="move('up')">
+    ⬆ Up
+  </button>
+
+  <button onclick="move('left')">
+    ⬅ Left
+  </button>
+
+  <button onclick="move('down')">
+    ⬇ Down
+  </button>
+
+  <button onclick="move('right')">
+    ➡ Right
+  </button>
+
+</div>
+
+<!--
+========================================================
+MESSAGE BOX
+========================================================
+-->
+
+<div id="message-box"></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
+
+<!--
+========================================================
+FILE: public/style.css
+========================================================
+-->
+
+body{
+
+  font-family:Arial;
+
+  text-align:center;
+
+  background:#f4f4f4;
+
+}
+
+/*
+========================================================
+BOARD
+========================================================
+*/
+
+#board{
+
+  width:500px;
+
+  height:500px;
+
+  margin:20px auto;
+
+  display:grid;
+
+  grid-template-columns:repeat(10, 1fr);
+
+  grid-template-rows:repeat(10, 1fr);
+
+  border:3px solid black;
+
+}
+
+/*
+========================================================
+GRID CELL
+========================================================
+*/
+
+.cell{
+
+  border:1px solid #ccc;
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  font-size:20px;
+
+}
+
+/*
+========================================================
+PLAYER STYLES
+========================================================
+*/
+
+.player1{
+
+  background:blue;
+
+  color:white;
+
+}
+
+.player2{
+
+  background:red;
+
+  color:white;
+
+}
+
+/*
+========================================================
+BASES
+========================================================
+*/
+
+.base1{
+
+  background:lightblue;
+
+}
+
+.base2{
+
+  background:pink;
+
+}
+
+/*
+========================================================
+OBSTACLES
+========================================================
+*/
+
+.obstacle{
+
+  background:black;
+
+}
+
+/*
+========================================================
+CONTROLS
+========================================================
+*/
+
+#controls{
+
+  margin-top:20px;
+
+}
+
+#controls button{
+
+  padding:10px 20px;
+
+  margin:5px;
+
+  font-size:16px;
+
+  cursor:pointer;
+
+}
+
+/*
+========================================================
+MESSAGE BOX
+========================================================
+*/
+
+#message-box{
+
+  margin-top:20px;
+
+  font-size:20px;
+
+  font-weight:bold;
+
+}
+
+<!--
+========================================================
+FILE: public/app.js
+========================================================
+-->
+
+const board =
+  document.getElementById("board");
+
+const messageBox =
+  document.getElementById("message-box");
+
+const turnText =
+  document.getElementById("turn-text");
+
+let currentPlayer = "player1";
+
+/*
+========================================================
+LOAD GAME STATE
+========================================================
+*/
+
+async function loadGame(){
+
+  const response =
+    await fetch("/game");
+
+  const data =
+    await response.json();
+
+  renderBoard(data);
+
+}
+
+/*
+========================================================
+RENDER BOARD
+========================================================
+*/
+
+function renderBoard(game){
+
+  board.innerHTML = "";
+
+  for(let y = 0; y < 10; y++){
+
+    for(let x = 0; x < 10; x++){
+
+      const cell =
+        document.createElement("div");
+
+      cell.classList.add("cell");
+
+      /*
+      ====================================================
+      PLAYER 1 BASE
+      ====================================================
+      */
+
+      if(x === 0 && y === 0){
+
+        cell.classList.add("base1");
+
+      }
+
+      /*
+      ====================================================
+      PLAYER 2 BASE
+      ====================================================
+      */
+
+      if(x === 9 && y === 9){
+
+        cell.classList.add("base2");
+
+      }
+
+      /*
+      ====================================================
+      OBSTACLES
+      ====================================================
+      */
+
+      game.obstacles.forEach(obs => {
+
+        if(obs.x === x && obs.y === y){
+
+          cell.classList.add("obstacle");
+
+        }
+
+      });
+
+      /*
+      ====================================================
+      PLAYER POSITIONS
+      ====================================================
+      */
+
+      if(
+        game.players.player1.position.x === x &&
+        game.players.player1.position.y === y
+      ){
+
+        cell.classList.add("player1");
+
+        cell.innerText = "P1";
+
+      }
+
+      if(
+        game.players.player2.position.x === x &&
+        game.players.player2.position.y === y
+      ){
+
+        cell.classList.add("player2");
+
+        cell.innerText = "P2";
+
+      }
+
+      board.appendChild(cell);
+
+    }
+
+  }
+
+  turnText.innerText =
+    `Current Turn: ${game.turn}`;
+
+}
+
+/*
+========================================================
+MOVE PLAYER
+========================================================
+*/
+
+async function move(direction){
+
+  const response =
+    await fetch("/game/move", {
+
+      method:"POST",
+
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body: JSON.stringify({
+        player: currentPlayer,
+        direction
+      })
+
+    });
+
+  const data =
+    await response.json();
+
+  messageBox.innerText =
+    data.message;
+
+  if(data.game){
+
+    renderBoard(data.game);
+
+    currentPlayer =
+      data.game.turn;
+
+  }
+
+}
+
+/*
+========================================================
+START NEW GAME
+========================================================
+*/
+
+document
+.getElementById("start-btn")
+.addEventListener("click",
+async () => {
+
+  const response =
+    await fetch("/game/start", {
+
+      method:"POST"
+
+    });
+
+  const data =
+    await response.json();
+
+  currentPlayer = "player1";
+
+  renderBoard(data.game);
+
+  messageBox.innerText =
+    data.message;
+
+});
+
+/*
+========================================================
+INITIAL LOAD
+========================================================
+*/
+
+loadGame();
+
+========================================================
+RUN APPLICATION
+========================================================
+
+node server.js
+
+========================================================
+OPEN APPLICATION
+========================================================
+
+http://localhost:3000
+
+========================================================
+FEATURES IMPLEMENTED
+========================================================
+
+✔ Express REST API
+✔ 10x10 Grid System
+✔ Turn-Based Gameplay
+✔ Player Movement
+✔ Obstacles
+✔ Base Capturing
+✔ Attack Range Detection
+✔ Win Detection
+✔ Frontend UI
+✔ Dynamic Grid Rendering
+✔ AJAX Requests
+✔ Game State Updates
+✔ Route Validation
+✔ Error Handling
+
+========================================================
+OPTIONAL FEATURES YOU CAN ADD
+========================================================
+
+✔ Multiplayer With Socket.io
+✔ Fog Of War
+✔ Power-Ups
+✔ Different Unit Types
+✔ User Authentication
+✔ Chat System
+✔ Matchmaking
+✔ Save Game Progress
+✔ Leaderboards
+✔ Multiple Game Sessions
+
+========================================================
+✅ END OF ASSIGNMENT
+========================================================
+*/
