@@ -1,0 +1,113 @@
+// App.js
+import React, { Component } from "react";
+
+class UserFavoriteAnimals extends Component {
+  render() {
+    return (
+      <div>
+        <ul>
+          {this.props.animals.map((animal, index) => (
+            <li key={index}>{animal}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}
+
+class Exercise extends Component {
+  render() {
+
+    const style_header = {
+      color: "white",
+      backgroundColor: "DodgerBlue",
+      padding: "10px",
+      fontFamily: "Arial"
+    };
+
+    return (
+      <div>
+
+        <h1 style={style_header}>This is a Header</h1>
+
+        <p
+          style={{
+            backgroundColor: "#282c34",
+            color: "white",
+            padding: "40px",
+            fontFamily: "Arial",
+            textAlign: "center"
+          }}
+        >
+          This is a paragraph styled with CSS.
+        </p>
+
+        <a href="https://react.dev">
+          Visit React Website
+        </a>
+
+        <br /><br />
+
+        <form>
+          <label>Name: </label>
+          <input type="text" placeholder="Enter your name" />
+          <button type="submit">Submit</button>
+        </form>
+
+        <br />
+
+        <img
+          src="https://via.placeholder.com/150"
+          alt="placeholder"
+        />
+
+        <ul>
+          <li>Apple</li>
+          <li>Mango</li>
+          <li>Orange</li>
+        </ul>
+
+      </div>
+    );
+  }
+}
+
+function App() {
+
+  // Exercise 1
+  const myelement = <h1>I Love JSX!</h1>;
+  const sum = 5 + 5;
+
+  // Exercise 2
+  const user = {
+    firstName: "Bob",
+    lastName: "Dylan",
+    favAnimals: ["Horse", "Turtle", "Elephant", "Monkey"]
+  };
+
+  return (
+    <div>
+
+      {/* Exercise 1 */}
+      <p>Hello World!</p>
+
+      {myelement}
+
+      <p>React is {sum} times better with JSX</p>
+
+
+      {/* Exercise 2 */}
+      <h3>{user.firstName}</h3>
+      <h3>{user.lastName}</h3>
+
+      <UserFavoriteAnimals animals={user.favAnimals} />
+
+
+      {/* Exercise 3 */}
+      <Exercise />
+
+    </div>
+  );
+}
+
+export default App;

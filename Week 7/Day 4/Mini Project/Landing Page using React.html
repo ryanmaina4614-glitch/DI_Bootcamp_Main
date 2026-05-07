@@ -1,0 +1,152 @@
+// App.js
+import React from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+
+function Header() {
+  return (
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+      <div className="container">
+        <a className="navbar-brand" href="#">
+          Landing Page
+        </a>
+
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav ms-auto">
+            <li className="nav-item">
+              <a className="nav-link active" href="#">
+                Home
+              </a>
+            </li>
+
+            <li className="nav-item">
+              <a className="nav-link" href="#services">
+                Services
+              </a>
+            </li>
+
+            <li className="nav-item">
+              <a className="nav-link" href="#contact">
+                Contact
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function HeroSection() {
+  return (
+    <div
+      className="text-center text-white d-flex align-items-center justify-content-center"
+      style={{
+        height: "70vh",
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1498050108023-c5249f4df085')",
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}
+    >
+      <div>
+        <h1 className="display-4 fw-bold">Welcome To Our Website</h1>
+        <p className="lead">
+          Build responsive React websites easily with Bootstrap.
+        </p>
+
+        <button className="btn btn-primary btn-lg mt-3">
+          Get Started
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Card(props) {
+  return (
+    <div className="col-md-4 mb-4">
+      <div className="card shadow h-100 text-center p-4">
+        <div className="mb-3">
+          <i className={`${props.icon} fa-3x text-primary`}></i>
+        </div>
+
+        <h3>{props.title}</h3>
+
+        <p className="text-muted">
+          {props.description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Contact() {
+  return (
+    <div
+      id="contact"
+      className="bg-dark text-white text-center p-5 mt-5"
+    >
+      <h2>Contact Us</h2>
+
+      <p>Email: info@example.com</p>
+
+      <p>Phone: +254 700 000 000</p>
+
+      <div className="mt-3">
+        <i className="fab fa-facebook fa-2x mx-2"></i>
+        <i className="fab fa-twitter fa-2x mx-2"></i>
+        <i className="fab fa-instagram fa-2x mx-2"></i>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div>
+
+      <Header />
+
+      <HeroSection />
+
+      <div className="container my-5" id="services">
+        <div className="row">
+
+          <Card
+            icon="fas fa-laptop-code"
+            title="Web Development"
+            description="Create modern and responsive websites using React and Bootstrap."
+          />
+
+          <Card
+            icon="fas fa-mobile-alt"
+            title="Mobile Friendly"
+            description="Our layouts are fully responsive and work on all screen sizes."
+          />
+
+          <Card
+            icon="fas fa-cloud"
+            title="Cloud Services"
+            description="Deploy and manage your applications easily in the cloud."
+          />
+
+        </div>
+      </div>
+
+      <Contact />
+
+    </div>
+  );
+}
+
+export default App;
