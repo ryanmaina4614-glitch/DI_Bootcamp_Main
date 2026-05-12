@@ -1,0 +1,165 @@
+// App.js
+
+import React, { useState, useEffect } from "react";
+
+// =======================
+// Exercise 1 - Car Component
+// =======================
+
+function Garage(props) {
+  return <h3>Who lives in my {props.size} Garage?</h3>;
+}
+
+function Car(props) {
+  const [color] = useState("red");
+
+  return (
+    <div>
+      <h2>
+        This car is {color} {props.model}
+      </h2>
+
+      <Garage size="small" />
+    </div>
+  );
+}
+
+// =======================
+// Exercise 2 - Events
+// =======================
+
+function Events() {
+  const clickMe = () => {
+    alert("I was clicked");
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      alert(`The Enter key was pressed, your input is: ${event.target.value}`);
+    }
+  };
+
+  const [isToggleOn, setIsToggleOn] = useState(true);
+
+  const toggleButton = () => {
+    setIsToggleOn(!isToggleOn);
+  };
+
+  return (
+    <div>
+      <h1>Exercise 2 - Events</h1>
+
+      <button onClick={clickMe}>Click Me</button>
+
+      <br />
+      <br />
+
+      <input
+        type="text"
+        placeholder="Press Enter after typing"
+        onKeyDown={handleKeyDown}
+      />
+
+      <br />
+      <br />
+
+      <button onClick={toggleButton}>
+        {isToggleOn ? "ON" : "OFF"}
+      </button>
+    </div>
+  );
+}
+
+// =======================
+// Exercise 3 - Phone Component
+// =======================
+
+function Phone() {
+  const [phone, setPhone] = useState({
+    brand: "Samsung",
+    model: "Galaxy S20",
+    color: "black",
+    year: 2020,
+  });
+
+  const changeColor = () => {
+    setPhone({ ...phone, color: "blue" });
+  };
+
+  return (
+    <div>
+      <h1>Exercise 3 - Phone</h1>
+
+      <h2>My Phone</h2>
+
+      <p>Brand: {phone.brand}</p>
+      <p>Model: {phone.model}</p>
+      <p>Color: {phone.color}</p>
+      <p>Year: {phone.year}</p>
+
+      <button onClick={changeColor}>Change Color</button>
+    </div>
+  );
+}
+
+// =======================
+// Exercise 4 - useEffect Hook
+// =======================
+
+function Color() {
+  const [favoriteColor, setFavoriteColor] = useState("red");
+
+  useEffect(() => {
+    alert("useEffect reached");
+  }, [favoriteColor]);
+
+  const changeColor = () => {
+    setFavoriteColor("blue");
+  };
+
+  return (
+    <div>
+      <h1>Exercise 4 - useEffect Hook</h1>
+
+      <h2>My favorite color is {favoriteColor}</h2>
+
+      <button onClick={changeColor}>Change Color</button>
+    </div>
+  );
+}
+
+// =======================
+// Main App Component
+// =======================
+
+function App() {
+  const carinfo = {
+    name: "Ford",
+    model: "Mustang",
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>React Exercises XP</h1>
+
+      <hr />
+
+      <h1>Exercise 1 - Car</h1>
+      <Car model={carinfo.model} />
+
+      <hr />
+
+      <Events />
+
+      <hr />
+
+      <Phone />
+
+      <hr />
+
+      <Color />
+    </div>
+  );
+}
+
+export default App;
