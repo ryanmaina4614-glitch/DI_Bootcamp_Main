@@ -1,0 +1,21 @@
+{
+  "SocialMedias": ["Facebook", "Twitter", "Instagram"],
+
+  "Skills": {
+    "Frontend": ["HTML", "CSS", "JavaScript", "React"],
+    "Backend": ["NodeJS", "Express", "MongoDB"]
+  },
+
+  "Experiences": [
+    {
+      "company": "Google",
+      "role": "Frontend Developer",
+      "years": 2
+    },
+    {
+      "company": "Microsoft",
+      "role": "Backend Developer",
+      "years": 3
+    }
+  ]
+}

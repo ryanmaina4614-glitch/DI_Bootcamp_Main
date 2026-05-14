@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "title": "Hello World",
+    "content": "This is my first post"
+  },
+  {
+    "id": 2,
+    "title": "React is Awesome",
+    "content": "Learning React is fun"
+  }
+]
